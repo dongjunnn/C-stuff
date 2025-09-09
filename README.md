@@ -8,3 +8,15 @@ std::unique_ptr has an explicit operator bool() const noexcept that answers one 
 “Do you currently own something?”
 
 Conversion functions are user-defined implicit/explicit casts from your class type to some other type.
+
+
+These are the special member functions in C++:
+
+Default constructor T()
+Destructor ~T()
+Copy constructor T(const T&)
+Copy assignment operator T& operator=(const T&)
+Move constructor T(T&&)
+Move assignment operator T& operator=(T&&)
+
+The compiler will generate these for you if you don’t declare them (with some rules). Together they’re often called the “big five” (used to be “big three” before move semantics).
