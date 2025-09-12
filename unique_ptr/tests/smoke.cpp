@@ -12,6 +12,15 @@ struct DtorCount {
     ~DtorCount() { ++dcount; }
 };
 
+// --- Additional helper: custom deleter ---
+struct CustomDeleter {
+    static inline int called = 0;
+    void operator()(int* p) noexcept {
+        ++called;
+        delete p;
+    }
+};
+
 int main() {
     // ===== Compile-time properties =====
     {
@@ -84,6 +93,47 @@ int main() {
         using UP = mini::unique_ptr<int>;
         static_assert(noexcept(std::declval<UP&>().release()));
         static_assert(noexcept(std::declval<UP&>().reset(nullptr))); // default_delete is noexcept
+    }
+
+    // ===== Custom deleter is called =====
+    CustomDeleter::called = 0;
+    {
+        mini::unique_ptr<int, CustomDeleter> p(new int(42), CustomDeleter());
+        assert(*p == 42);
+    }
+    assert(CustomDeleter::called == 1);
+
+    // ===== get_deleter returns deleter =====
+    {
+        mini::unique_ptr<int, CustomDeleter> p(new int(1), CustomDeleter());
+        CustomDeleter d = p.get_deleter();
+        (void)d; // just check type
+    }
+
+    // ===== operator-> and operator* =====
+    {
+        auto p = mini::unique_ptr<int>(new int(99));
+        assert(*p == 99);
+        *p = 100;
+        assert(*p == 100);
+        assert(p.operator->() == p.get());
+    }
+
+    // ===== explicit operator bool =====
+    {
+        mini::unique_ptr<int> p;
+        assert(!p);
+        p.reset(new int(1));
+        assert(p);
+    }
+
+    // ===== swap with empty =====
+    {
+        mini::unique_ptr<int> a(new int(5));
+        mini::unique_ptr<int> b;
+        a.swap(b);
+        assert(!a);
+        assert(b && *b == 5);
     }
 
     return 0;

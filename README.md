@@ -20,3 +20,27 @@ Move constructor T(T&&)
 Move assignment operator T& operator=(T&&)
 
 The compiler will generate these for you if you don’t declare them (with some rules). Together they’re often called the “big five” (used to be “big three” before move semantics).
+
+
+
+## Why `noexcept` Matters
+1. **Exception safety**
+   - Critical functions like destructors should never throw.  
+   - Without `noexcept`, throwing from a destructor during stack unwinding would cause `std::terminate()` anyway — so marking it makes intent explicit.
+
+2. **Compiler optimizations**
+   - Functions marked `noexcept` can skip exception-handling scaffolding.  
+   - This often results in smaller, faster code.
+
+3. **Container behavior**
+   - Standard containers (like `std::vector`) check if move constructors are `noexcept`.  
+   - If they are, the container will move elements during reallocation (faster).  
+   - If not, it will copy instead (slower, but safer).
+
+
+
+
+### Run cmake 
+Remove-Item -Recurse -Force .\build
+cmake -S . -B build          # reconfigure; this refreshes the .vcxproj without the .cpp
+cmake --build build --config Debug -j

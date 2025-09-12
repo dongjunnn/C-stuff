@@ -18,6 +18,25 @@ namespace mini {
             ptr = raw_ptr;
         }
 
+        unique_ptr(T* raw_ptr, D deleter) {
+            ptr = raw_ptr;
+            this->deleter = deleter;
+        }
+
+        unique_ptr(unique_ptr&& other) noexcept { // move constructor; && is to differentiate between different overloaded functionse
+            ptr = other.ptr;
+            other.ptr = nullptr;
+        }
+
+        unique_ptr operator=(const unique_ptr&& other) {
+            ptr = other.ptr;
+            deleter(other);
+        }
+
+        ~unique_ptr() noexcept {
+            deleter(ptr);
+        }
+
         T* get() {
             return ptr;
         }
@@ -49,6 +68,10 @@ namespace mini {
         void reset(T* p = nullptr) noexcept(std::is_nothrow_invocable_v<D&, T*>) {
             deleter(ptr);
             ptr = p;
+        }
+
+        D get_deleter() {
+            return deleter;
         }
 
         private:
