@@ -8,10 +8,10 @@ std::unique_ptr has an explicit operator bool() const noexcept that answers one 
 “Do you currently own something?”
 
 Conversion functions are user-defined implicit/explicit casts from your class type to some other type.
-
+What happens if you don’t write explicit?
+Then the conversion is implicit. That means your unique_ptr could be used anywhere a bool (or something convertible from bool) is expected — sometimes in ways you don’t want
 
 These are the special member functions in C++:
-
 Default constructor T()
 Destructor ~T()
 Copy constructor T(const T&)
